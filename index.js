@@ -56,7 +56,13 @@ app.get("/", (req, res) => {
 // 📰 NEWS ROUTE
 app.get("/news", async (req, res) => {
   try {
-    const feed = await parser.parseURL(RSS_URL);
+   let feed;
+try {
+  feed = await parser.parseURL(RSS_URL);
+} catch (err) {
+  console.log("RSS ERROR:", err.message);
+  return res.status(500).json({ error: "RSS failed" });
+}
 
     let result = [];
 
@@ -71,10 +77,14 @@ app.get("/news", async (req, res) => {
     }
 
     res.json(result);
-  } catch (e) {
-    console.log(e);
-    res.send("Server error");
-  }
+  } 
+  catch (e) {
+  console.log("NEWS ERROR:", e);
+  res.status(500).json({
+    error: "Server error",
+    details: e.message
+  });
+}
 });
 
 // 🚀 PORT
