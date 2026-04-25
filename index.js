@@ -9,12 +9,23 @@ app.use(cors());
 
 const parser = new Parser();
 
+// 🌍 Google News RSS
 const RSS_URL =
   "https://news.google.com/rss/search?q=rajasthan&hl=hi&gl=IN&ceid=IN:hi";
 
+// 🔑 Gemini API Key
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 
-// 🧠 Gemini AI Summary Function
+/* ==============================
+   🏠 HOME ROUTE (FIXED ERROR)
+============================== */
+app.get("/", (req, res) => {
+  res.send("🔥 News AI Server Running Successfully. Use /news");
+});
+
+/* ==============================
+   🧠 GEMINI SUMMARY FUNCTION
+============================== */
 async function getSummary(text) {
   try {
     const res = await axios.post(
@@ -34,11 +45,13 @@ async function getSummary(text) {
 
     return res.data.candidates[0].content.parts[0].text;
   } catch (err) {
-    return "Summary नहीं मिल पाया";
+    return "Summary उपलब्ध नहीं है";
   }
 }
 
-// 📰 NEWS API
+/* ==============================
+   📰 NEWS API ROUTE
+============================== */
 app.get("/news", async (req, res) => {
   try {
     const feed = await parser.parseURL(RSS_URL);
@@ -56,11 +69,15 @@ app.get("/news", async (req, res) => {
     }
 
     res.json(result);
-  } catch (e) {
+  } catch (err) {
     res.status(500).send("error");
   }
 });
 
-// 🚀 SERVER START
+/* ==============================
+   🚀 SERVER START
+============================== */
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log("running on port " + PORT));
+app.listen(PORT, () => {
+  console.log("🔥 Server running on port " + PORT);
+});
