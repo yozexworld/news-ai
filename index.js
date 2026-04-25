@@ -33,12 +33,17 @@ async function getSummary(text) {
       }
     );
 
-    return (
-      res.data?.candidates?.[0]?.content?.parts?.[0]?.text ||
-      "Summary नहीं मिला"
-    );
+  const candidate = res.data?.candidates?.[0];
+
+if (!candidate) return "Summary नहीं मिला";
+
+const parts = candidate?.content?.parts;
+
+if (!parts || !parts.length) return "Summary खाली है";
+
+return parts[0].text || "Summary नहीं मिला";
   } catch (err) {
-    console.log("AI ERROR:", err.response?.data || err.message);
+    console.log(JSON.stringify(res.data, null, 2));
     return "Summary error आया है";
   }
 }
@@ -55,7 +60,7 @@ app.get("/news", async (req, res) => {
 
     let result = [];
 
-    for (let item of feed.items.slice(0, 5)) {
+    for (let item of feed.items.slice(0, 3)) {
       const summary = await getSummary(item.title);
 
       result.push({
