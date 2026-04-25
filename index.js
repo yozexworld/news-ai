@@ -1,3 +1,5 @@
+require("dotenv").config();
+
 const express = require("express");
 const axios = require("axios");
 const Parser = require("rss-parser");
@@ -8,16 +10,17 @@ app.use(cors());
 
 const parser = new Parser();
 
-// 🔥 YOUR GEMINI KEY
+// 🔥 Gemini API Key
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 
+// 🌍 RSS NEWS
 const RSS_URL =
   "https://news.google.com/rss/search?q=rajasthan&hl=hi&gl=IN&ceid=IN:hi";
 
-// 🟢 FIXED AI FUNCTION
+// 🧠 Gemini Summary Function
 async function getSummary(text) {
   try {
-    const res = await axios.post(
+    const response = await axios.post(
       `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`,
       {
         contents: [
@@ -33,16 +36,21 @@ async function getSummary(text) {
     );
 
     return (
-      res.data?.candidates?.[0]?.content?.parts?.[0]?.text ||
+      response.data?.candidates?.[0]?.content?.parts?.[0]?.text ||
       "Summary नहीं मिला"
     );
   } catch (err) {
-    console.log("AI ERROR:", err.response?.data || err.message);
+    console.log("Gemini Error:", err.response?.data || err.message);
     return "Summary error आया है";
   }
 }
 
-// 🟢 NEWS API
+// 🏠 Home Route
+app.get("/", (req, res) => {
+  res.send("🔥 News AI Server Running Successfully");
+});
+
+// 📰 News Route
 app.get("/news", async (req, res) => {
   try {
     const feed = await parser.parseURL(RSS_URL);
@@ -54,17 +62,47 @@ app.get("/news", async (req, res) => {
 
       result.push({
         title: item.title,
-        summary: summary,
+        summary,
         link: item.link
       });
     }
 
     res.json(result);
-  } catch (e) {
-    res.send("Server error");
+  } catch (err) {
+    res.status(500).send("Server Error");
   }
 });
 
-// 🟢 PORT FIX (IMPORTANT FOR RENDER)
+// 🔥 Test Gemini Route
+app.get("/test-gemini", async (req, res) => {
+  try {
+    const response = await axios.post(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`,
+      {
+        contents: [
+          {
+            parts: [{ text: "Hello in Hindi in one line" }]
+          }
+        ]
+      }
+    );
+
+    res.json({
+      success: true,
+      reply:
+        response.data.candidates?.[0]?.content?.parts?.[0]?.text
+    });
+  } catch (err) {
+    res.json({
+      success: false,
+      error: err.message
+    });
+  }
+});
+
+// 🚀 PORT (Render Ready)
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log("🔥 Server running on " + PORT));
+
+app.listen(PORT, () => {
+  console.log("🔥 Server running on port " + PORT);
+});
