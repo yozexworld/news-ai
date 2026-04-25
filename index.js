@@ -22,15 +22,15 @@ app.get("/news", async (req, res) => {
     let result = [];
 
     for (let item of feed.items.slice(0, 5)) {
-      const ai = await openai.chat.completions.create({
-        model: "gpt-5.3",
-        messages: [
-          {
-            role: "user",
-            content: `इस खबर को 80 शब्दों में हिंदी में summarize करो:\n${item.title}`
-          }
-        ]
-      });
+     const ai = await openai.chat.completions.create({
+  model: "gpt-4o-mini",
+  messages: [
+    {
+      role: "user",
+      content: `इस खबर को 80 शब्दों में हिंदी में summarize करो:\n${item.title}`
+    }
+  ]
+});
 
       result.push({
         title: item.title,
