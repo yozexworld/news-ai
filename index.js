@@ -58,7 +58,7 @@ app.get("/news", async (req, res) => {
 
     let result = [];
 
-    for (let item of feed.items.slice(0, 5)) {
+    for (let item of feed.items.slice(0, 3)) {
       const summary = await getSummary(item.title);
 
       result.push({
