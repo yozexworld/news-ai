@@ -29,13 +29,13 @@ app.get("/", (req, res) => {
 async function getSummary(text) {
   try {
     const res = await axios.post(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent?key=${GEMINI_API_KEY}`,
       {
         contents: [
           {
             parts: [
               {
-                text: `इस खबर को 80 शब्दों में हिंदी में summarize करो:\n${text}`
+                text: `इस खबर को 80 शब्दों में हिंदी में आसान भाषा में summarize करो:\n${text}`
               }
             ]
           }
@@ -43,14 +43,12 @@ async function getSummary(text) {
       }
     );
 
-    // 🔥 SAFE CHECK (IMPORTANT)
-    const data = res.data;
+    const result =
+      res.data?.candidates?.[0]?.content?.parts?.[0]?.text;
 
-    return (
-      data?.candidates?.[0]?.content?.parts?.[0]?.text ||
-      "Summary उपलब्ध नहीं है"
-    );
+    return result || "Summary नहीं मिला";
   } catch (err) {
+    console.log(err.response?.data || err.message);
     return "Summary error आया है";
   }
 }
