@@ -1,41 +1,30 @@
-require("dotenv").config();
 const express = require("express");
+const axios = require("axios");
 const Parser = require("rss-parser");
 const cors = require("cors");
-const axios = require("axios");
 
 const app = express();
 app.use(cors());
 
 const parser = new Parser();
 
-// 🌍 Google News RSS
+// 🔥 YOUR GEMINI KEY
+const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
+
 const RSS_URL =
   "https://news.google.com/rss/search?q=rajasthan&hl=hi&gl=IN&ceid=IN:hi";
 
-// 🔑 Gemini API Key
-const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
-
-/* ==============================
-   🏠 HOME ROUTE (FIXED ERROR)
-============================== */
-app.get("/", (req, res) => {
-  res.send("🔥 News AI Server Running Successfully. Use /news");
-});
-
-/* ==============================
-   🧠 GEMINI SUMMARY FUNCTION
-============================== */
+// 🟢 FIXED AI FUNCTION
 async function getSummary(text) {
   try {
     const res = await axios.post(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent?key=${GEMINI_API_KEY}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`,
       {
         contents: [
           {
             parts: [
               {
-                text: `इस खबर को 80 शब्दों में हिंदी में आसान भाषा में summarize करो:\n${text}`
+                text: `इस खबर को 60-80 शब्दों में आसान हिंदी में summarize करो:\n${text}`
               }
             ]
           }
@@ -43,19 +32,17 @@ async function getSummary(text) {
       }
     );
 
-    const result =
-      res.data?.candidates?.[0]?.content?.parts?.[0]?.text;
-
-    return result || "Summary नहीं मिला";
+    return (
+      res.data?.candidates?.[0]?.content?.parts?.[0]?.text ||
+      "Summary नहीं मिला"
+    );
   } catch (err) {
-    console.log(err.response?.data || err.message);
+    console.log("AI ERROR:", err.response?.data || err.message);
     return "Summary error आया है";
   }
 }
 
-/* ==============================
-   📰 NEWS API ROUTE
-============================== */
+// 🟢 NEWS API
 app.get("/news", async (req, res) => {
   try {
     const feed = await parser.parseURL(RSS_URL);
@@ -73,15 +60,11 @@ app.get("/news", async (req, res) => {
     }
 
     res.json(result);
-  } catch (err) {
-    res.status(500).send("error");
+  } catch (e) {
+    res.send("Server error");
   }
 });
 
-/* ==============================
-   🚀 SERVER START
-============================== */
+// 🟢 PORT FIX (IMPORTANT FOR RENDER)
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log("🔥 Server running on port " + PORT);
-});
+app.listen(PORT, () => console.log("🔥 Server running on " + PORT));
