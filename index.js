@@ -14,7 +14,7 @@ const RSS_URL =
 
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 
-// 🧠 AI SUMMARY FUNCTION (GEMINI)
+// 🧠 Gemini AI Summary Function
 async function getSummary(text) {
   try {
     const res = await axios.post(
@@ -34,7 +34,7 @@ async function getSummary(text) {
 
     return res.data.candidates[0].content.parts[0].text;
   } catch (err) {
-    return "Summary नहीं बन पाया";
+    return "Summary नहीं मिल पाया";
   }
 }
 
