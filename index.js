@@ -43,9 +43,15 @@ async function getSummary(text) {
       }
     );
 
-    return res.data.candidates[0].content.parts[0].text;
+    // 🔥 SAFE CHECK (IMPORTANT)
+    const data = res.data;
+
+    return (
+      data?.candidates?.[0]?.content?.parts?.[0]?.text ||
+      "Summary उपलब्ध नहीं है"
+    );
   } catch (err) {
-    return "Summary उपलब्ध नहीं है";
+    return "Summary error आया है";
   }
 }
 
